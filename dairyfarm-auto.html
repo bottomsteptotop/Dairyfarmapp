@@ -1,23 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Auto Entry</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #fffdf5; text-align: center; }
-    header { background: #ff9800; color: white; padding: 15px; font-size: 22px; font-weight: bold; }
-    a { display: block; margin: 20px auto; padding: 10px; background: #4CAF50; color: white;
-        width: 80%; max-width: 300px; border-radius: 6px; text-decoration: none; font-size: 18px; }
-    a:hover { background: #388e3c; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Entry - Dairy Farm</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #fffdf5; text-align: center; }
+  header { background: #ff9800; color: white; padding: 15px; font-size: 22px; font-weight: bold; }
+  form { margin: 20px auto; padding: 15px; background: #f5f5f5; width: 90%; max-width: 400px;
+         border-radius: 8px; }
+  input, select { width: 90%; padding: 8px; margin: 8px 0; }
+  button { background: #4CAF50; color: white; padding: 10px 20px; border: none;
+           border-radius: 6px; font-size: 16px; cursor: pointer; }
+  button:hover { background: #388e3c; }
+  .list { margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd;
+          width: 90%; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .entry { padding: 5px; border-bottom: 1px solid #ddd; text-align: left; }
+</style>
 </head>
 <body>
-  <header>🚜 Auto Entry System</header>
 
-  <h3>Auto Daily Milk Entry Coming Soon...</h3>
-  <p>இங்கு உங்கள் Auto Entry logic integrate செய்யப்படும்.</p>
+<header>🚜 Auto Entry System</header>
 
-  <a href="index.html">⬅ Back to Dashboard</a>
+<h3>🐄 Add Cow Insemination Entry</h3>
+
+<form id="autoEntryForm">
+  <input type="text" id="cowName" placeholder="Enter Cow Name" required><br>
+  <label>Insemination Date:</label><br>
+  <input type="date" id="inseminationDate" required><br>
+  <label>Expected Delivery Date:</label><br>
+  <input type="date" id="deliveryDate" required><br>
+  <button type="submit">Save Entry</button>
+</form>
+
+<h3>📋 Saved Entries</h3>
+<div class="list" id="entryList">No entries yet.</div>
+
+<a href="index.html">⬅ Back to Dashboard</a>
+
+<script>
+// Load saved data
+let entries = JSON.parse(localStorage.getItem("autoEntries")) || [];
+
+// Display entries
+function showEntries() {
+    const list = document.getElementById("entryList");
+    if (entries.length === 0) {
+        list.innerHTML = "No entries yet.";
+        return;
+    }
+    list.innerHTML = "";
+    entries.forEach((e, i) => {
+        list.innerHTML += `<div class="entry">🐄 <b>${e.cow}</b> | Insemination: ${e.insemination} | Delivery: ${e.delivery}</div>`;
+    });
+}
+showEntries();
+
+// Save entry
+document.getElementById("autoEntryForm").addEventListener("submit", function(event){
+    event.preventDefault();
+    const cow = document.getElementById("cowName").value;
+    const insemination = document.getElementById("inseminationDate").value;
+    const delivery = document.getElementById("deliveryDate").value;
+    
+    entries.push({ cow, insemination, delivery });
+    localStorage.setItem("autoEntries", JSON.stringify(entries));
+    
+    document.getElementById("autoEntryForm").reset();
+    showEntries();
+});
+</script>
+
 </body>
 </html>
