@@ -1,98 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Dairy Farm Manager - Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body { font-family: Arial, sans-serif; background:#f9fff4; text-align:center; }
-header { background:#4CAF50; color:white; padding:10px; font-size:22px; font-weight:bold; }
-button { width:80%; margin:8px auto; padding:10px; font-size:18px; background:#4CAF50; color:white; border:none; border-radius:6px; display:block;}
-button:hover { background:#388E3C; }
-canvas { max-width: 90%; margin: 10px auto; background:#fff; border:1px solid #ccc; border-radius:6px; }
-h3 { color:#333; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dairy Farm Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8fff8; text-align: center; }
+    header { background: #4CAF50; color: white; padding: 15px; font-size: 24px; font-weight: bold; }
+    .btn { display: block; margin: 15px auto; padding: 12px; width: 80%; max-width: 300px;
+           background: #4CAF50; color: white; font-size: 18px; text-decoration: none;
+           border-radius: 8px; }
+    .btn:hover { background: #388e3c; }
+  </style>
 </head>
 <body>
+  <header>🐄 Dairy Farm Manager - Dashboard</header>
 
-<header>🐄 Dairy Farm Manager - Dashboard</header>
+  <a class="btn" href="dairyfarm-auto.html">🚜 Auto Entry</a>
+  <a class="btn" href="dairyfarm-sales.html">🥛 Milk Sales</a>
+  <a class="btn" href="dairyfarm-report.html">📊 Monthly Report</a>
 
-<div id="menu">
-  <button onclick="showSection('dashboard')">📊 Dashboard</button>
-  <button onclick="showSection('report')">Monthly Report</button>
-  <button onclick="showSection('menu')">⬅ Back</button>
-</div>
-
-<div id="dashboard" style="display:none;">
-  <h3>Business Summary</h3>
-  <div id="summary"></div>
-  <canvas id="milkChart"></canvas>
-  <canvas id="revenueChart"></canvas>
-  <button onclick="showSection('menu')">⬅ Back</button>
-</div>
-
-<div id="report" style="display:none;">
-  <h3>Reports Coming Here...</h3>
-  <button onclick="showSection('menu')">⬅ Back</button>
-</div>
-
-<script>
-// Load data
-let customers = JSON.parse(localStorage.getItem('customers')) || [];
-let sales = JSON.parse(localStorage.getItem('sales')) || [];
-
-// Section Switch
-function showSection(id){
-  document.querySelectorAll("div").forEach(d=>{if(d.id) d.style.display="none";});
-  document.getElementById(id).style.display="block";
-  if(id==='dashboard') loadDashboard();
-}
-
-// Load Dashboard
-function loadDashboard(){
-  let totalMilk = 0, totalRevenue = 0;
-  let customerData = {};
-
-  sales.forEach(s=>{
-    totalMilk += s.qty;
-    let rate = (s.type==='door'?52:50);
-    totalRevenue += s.qty*rate;
-    customerData[s.name] = (customerData[s.name]||0) + s.qty;
-  });
-
-  document.getElementById('summary').innerHTML = `
-    <h4>Total Milk Sold: ${totalMilk} L</h4>
-    <h4>Total Revenue: ₹${totalRevenue}</h4>
-  `;
-
-  // Customer-wise Pie Chart
-  new Chart(document.getElementById('milkChart'), {
-    type: 'pie',
-    data: {
-      labels: Object.keys(customerData),
-      datasets: [{
-        data: Object.values(customerData),
-        backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4CAF50','#9C27B0']
-      }]
-    },
-    options: { responsive:true }
-  });
-
-  // Revenue Bar Chart
-  new Chart(document.getElementById('revenueChart'), {
-    type: 'bar',
-    data: {
-      labels: Object.keys(customerData),
-      datasets: [{
-        label: 'Milk Sold (L)',
-        data: Object.values(customerData),
-        backgroundColor: '#4CAF50'
-      }]
-    },
-    options: { responsive:true }
-  });
-}
-</script>
+  <p>💡 Hosted on <b>GitHub Pages</b></p>
 </body>
 </html>
