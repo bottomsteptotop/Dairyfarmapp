@@ -7,24 +7,24 @@
 <style>
   body { font-family: Arial, sans-serif; background: #fffdf5; text-align: center; }
   header { background: #ff9800; color: white; padding: 15px; font-size: 22px; font-weight: bold; }
-  form { margin: 20px auto; padding: 15px; background: #f5f5f5; width: 90%; max-width: 400px;
-         border-radius: 8px; }
-  input, select { width: 90%; padding: 8px; margin: 8px 0; }
-  button { background: #4CAF50; color: white; padding: 10px 20px; border: none;
-           border-radius: 6px; font-size: 16px; cursor: pointer; }
+  form { margin: 20px auto; padding: 15px; background: #f5f5f5; width: 90%; max-width: 400px; border-radius: 8px; }
+  input { width: 90%; padding: 8px; margin: 8px 0; }
+  button { background: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; }
   button:hover { background: #388e3c; }
-  .list { margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd;
-          width: 90%; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .list { margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd; width: 90%; max-width: 400px; margin: auto; }
   .entry { padding: 5px; border-bottom: 1px solid #ddd; text-align: left; }
+  .editBtn { background:#2196F3; margin-left:5px; }
+  .deleteBtn { background:#E91E63; margin-left:5px; }
 </style>
 </head>
 <body>
 
 <header>🚜 Auto Entry System</header>
 
-<h3>🐄 Add Cow Insemination Entry</h3>
+<h3>🐄 Add / Edit Cow Entry</h3>
 
 <form id="autoEntryForm">
+  <input type="hidden" id="editIndex">
   <input type="text" id="cowName" placeholder="Enter Cow Name" required><br>
   <label>Insemination Date:</label><br>
   <input type="date" id="inseminationDate" required><br>
@@ -39,10 +39,8 @@
 <a href="index.html">⬅ Back to Dashboard</a>
 
 <script>
-// Load saved data
 let entries = JSON.parse(localStorage.getItem("autoEntries")) || [];
 
-// Display entries
 function showEntries() {
     const list = document.getElementById("entryList");
     if (entries.length === 0) {
@@ -51,24 +49,50 @@ function showEntries() {
     }
     list.innerHTML = "";
     entries.forEach((e, i) => {
-        list.innerHTML += `<div class="entry">🐄 <b>${e.cow}</b> | Insemination: ${e.insemination} | Delivery: ${e.delivery}</div>`;
+        list.innerHTML += `<div class="entry">🐄 <b>${e.cow}</b> | Insemination: ${e.insemination} | Delivery: ${e.delivery}
+        <button class="editBtn" onclick="editEntry(${i})">📝 Edit</button>
+        <button class="deleteBtn" onclick="deleteEntry(${i})">❌ Delete</button></div>`;
     });
 }
-showEntries();
 
-// Save entry
+function saveEntries() {
+    localStorage.setItem("autoEntries", JSON.stringify(entries));
+    showEntries();
+}
+
 document.getElementById("autoEntryForm").addEventListener("submit", function(event){
     event.preventDefault();
     const cow = document.getElementById("cowName").value;
     const insemination = document.getElementById("inseminationDate").value;
     const delivery = document.getElementById("deliveryDate").value;
-    
-    entries.push({ cow, insemination, delivery });
-    localStorage.setItem("autoEntries", JSON.stringify(entries));
-    
+    const index = document.getElementById("editIndex").value;
+
+    if (index) {
+        entries[index] = { cow, insemination, delivery };
+    } else {
+        entries.push({ cow, insemination, delivery });
+    }
+
+    document.getElementById("editIndex").value = "";
     document.getElementById("autoEntryForm").reset();
-    showEntries();
+    saveEntries();
 });
+
+function editEntry(i) {
+    document.getElementById("cowName").value = entries[i].cow;
+    document.getElementById("inseminationDate").value = entries[i].insemination;
+    document.getElementById("deliveryDate").value = entries[i].delivery;
+    document.getElementById("editIndex").value = i;
+}
+
+function deleteEntry(i) {
+    if (confirm("Delete this entry?")) {
+        entries.splice(i, 1);
+        saveEntries();
+    }
+}
+
+showEntries();
 </script>
 
 </body>
