@@ -1,23 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monthly Report</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #fff6f9; text-align: center; }
-    header { background: #E91E63; color: white; padding: 15px; font-size: 22px; font-weight: bold; }
-    a { display: block; margin: 20px auto; padding: 10px; background: #4CAF50; color: white;
-        width: 80%; max-width: 300px; border-radius: 6px; text-decoration: none; font-size: 18px; }
-    a:hover { background: #388e3c; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Report - Dairy Farm</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #fff6f9; text-align: center; }
+  header { background: #E91E63; color: white; padding: 15px; font-size: 22px; font-weight: bold; }
+  .section { margin: 20px auto; width: 90%; max-width: 500px; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; }
+  .title { background: #f8e6ec; padding: 5px; font-weight: bold; }
+  .entry { border-bottom: 1px solid #ddd; padding: 5px; text-align: left; }
+  .total { font-size: 18px; font-weight: bold; margin-top: 10px; color: #d81b60; }
+  a { display: block; margin: 20px auto; padding: 10px; background: #4CAF50; color: white; width: 80%; max-width: 300px; border-radius: 6px; text-decoration: none; font-size: 18px; }
+  a:hover { background: #388e3c; }
+</style>
 </head>
 <body>
-  <header>📊 Monthly Report</header>
 
-  <h3>Reports & Analytics Page</h3>
-  <p>மாதாந்திர report மற்றும் data analysis இங்கே வரும்.</p>
+<header>📊 Monthly Report</header>
 
-  <a href="index.html">⬅ Back to Dashboard</a>
+<div class="section">
+  <div class="title">🐄 Insemination Records</div>
+  <div id="cowList">Loading...</div>
+</div>
+
+<div class="section">
+  <div class="title">🥛 Milk Sales Records</div>
+  <div id="salesList">Loading...</div>
+  <div class="total" id="salesTotal"></div>
+</div>
+
+<a href="index.html">⬅ Back to Dashboard</a>
+
+<script>
+// Load Auto Entry data
+let cows = JSON.parse(localStorage.getItem("autoEntries")) || [];
+const cowDiv = document.getElementById("cowList");
+if (cows.length === 0) {
+    cowDiv.innerHTML = "No records.";
+} else {
+    cowDiv.innerHTML = "";
+    cows.forEach(c => {
+        cowDiv.innerHTML += `<div class="entry">🐄 <b>${c.cow}</b> | Insemination: ${c.insemination} | Delivery: ${c.delivery}</div>`;
+    });
+}
+
+// Load Sales data
+let sales = JSON.parse(localStorage.getItem("milkSales")) || [];
+const salesDiv = document.getElementById("salesList");
+let totalAmount = 0;
+if (sales.length === 0) {
+    salesDiv.innerHTML = "No sales.";
+} else {
+    salesDiv.innerHTML = "";
+    sales.forEach(s => {
+        totalAmount += s.total;
+        salesDiv.innerHTML += `<div class="entry">👤 <b>${s.customer}</b> | ${s.quantity}L × ₹${s.price} = ₹${s.total}</div>`;
+    });
+    document.getElementById("salesTotal").innerText = `💰 Total Sales: ₹${totalAmount}`;
+}
+</script>
+
 </body>
 </html>
