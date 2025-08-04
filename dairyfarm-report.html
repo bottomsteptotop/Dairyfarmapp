@@ -10,6 +10,7 @@
   .section { margin: 20px auto; width: 90%; max-width: 500px; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; }
   .title { background: #f8e6ec; padding: 5px; font-weight: bold; }
   .entry { border-bottom: 1px solid #ddd; padding: 5px; text-align: left; }
+  .deleteBtn { background:#E91E63; color:white; padding:3px 8px; border:none; border-radius:4px; margin-left:5px; }
   .total { font-size: 18px; font-weight: bold; margin-top: 10px; color: #d81b60; }
   a { display: block; margin: 20px auto; padding: 10px; background: #4CAF50; color: white; width: 80%; max-width: 300px; border-radius: 6px; text-decoration: none; font-size: 18px; }
   a:hover { background: #388e3c; }
@@ -19,11 +20,18 @@
 
 <header>📊 Monthly Report</header>
 
+<!-- Month Filter -->
+<label><b>📅 Select Month:</b></label>
+<input type="month" id="monthFilter">
+<button onclick="filterByMonth()">Filter</button>
+
+<!-- Cows Section -->
 <div class="section">
   <div class="title">🐄 Insemination Records</div>
   <div id="cowList">Loading...</div>
 </div>
 
+<!-- Sales Section -->
 <div class="section">
   <div class="title">🥛 Milk Sales Records</div>
   <div id="salesList">Loading...</div>
@@ -33,32 +41,55 @@
 <a href="index.html">⬅ Back to Dashboard</a>
 
 <script>
-// Load Auto Entry data
+// Load Data
 let cows = JSON.parse(localStorage.getItem("autoEntries")) || [];
-const cowDiv = document.getElementById("cowList");
-if (cows.length === 0) {
-    cowDiv.innerHTML = "No records.";
-} else {
+let sales = JSON.parse(localStorage.getItem("milkSales")) || [];
+
+// Display Cows
+function showCows() {
+    const cowDiv = document.getElementById("cowList");
+    if (cows.length === 0) { cowDiv.innerHTML = "No records."; return; }
     cowDiv.innerHTML = "";
-    cows.forEach(c => {
-        cowDiv.innerHTML += `<div class="entry">🐄 <b>${c.cow}</b> | Insemination: ${c.insemination} | Delivery: ${c.delivery}</div>`;
+    cows.forEach((c,i) => {
+        cowDiv.innerHTML += `<div class="entry">🐄 <b>${c.cow}</b> | Insemination: ${c.insemination} | Delivery: ${c.delivery}
+        <button class="deleteBtn" onclick="deleteCow(${i})">❌</button></div>`;
     });
 }
 
-// Load Sales data
-let sales = JSON.parse(localStorage.getItem("milkSales")) || [];
-const salesDiv = document.getElementById("salesList");
-let totalAmount = 0;
-if (sales.length === 0) {
-    salesDiv.innerHTML = "No sales.";
-} else {
+// Display Sales
+function showSales(filterMonth="") {
+    const salesDiv = document.getElementById("salesList");
+    let totalAmount = 0;
     salesDiv.innerHTML = "";
-    sales.forEach(s => {
+    let filtered = sales;
+
+    if (filterMonth !== "") {
+        filtered = sales.filter(s => s.date && s.date.startsWith(filterMonth));
+    }
+
+    if (filtered.length === 0) { salesDiv.innerHTML = "No sales."; document.getElementById("salesTotal").innerText=""; return; }
+
+    filtered.forEach((s,i) => {
         totalAmount += s.total;
-        salesDiv.innerHTML += `<div class="entry">👤 <b>${s.customer}</b> | ${s.quantity}L × ₹${s.price} = ₹${s.total}</div>`;
+        salesDiv.innerHTML += `<div class="entry">👤 <b>${s.customer}</b> | ${s.quantity}L × ₹${s.price} = ₹${s.total} ${s.date?`| ${s.date}`:""}
+        <button class="deleteBtn" onclick="deleteSale(${i})">❌</button></div>`;
     });
     document.getElementById("salesTotal").innerText = `💰 Total Sales: ₹${totalAmount}`;
 }
+
+// Delete Functions
+function deleteCow(i){ if(confirm("Delete this cow record?")){ cows.splice(i,1); localStorage.setItem("autoEntries",JSON.stringify(cows)); showCows(); } }
+function deleteSale(i){ if(confirm("Delete this sale?")){ sales.splice(i,1); localStorage.setItem("milkSales",JSON.stringify(sales)); showSales(); } }
+
+// Month Filter
+function filterByMonth() {
+    const m = document.getElementById("monthFilter").value;
+    showSales(m);
+}
+
+// Initial Load
+showCows();
+showSales();
 </script>
 
 </body>
