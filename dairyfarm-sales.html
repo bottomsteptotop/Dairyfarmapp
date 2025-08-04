@@ -19,10 +19,21 @@
 </head>
 <body>
 
-<header>🥛 Daily Milk Sales (with Date)</header>
+<header>🥛 Daily Milk Sales (Auto Default Qty)</header>
+
+<h3>➕ Set Default Quantity</h3>
+<form id="defaultForm">
+  <input type="text" id="defCustomer" placeholder="Customer Name" required><br>
+  <input type="number" id="defQty" placeholder="Default Quantity (litres)" required><br>
+  <label>Default Price:</label><br>
+  <select id="defPrice">
+    <option value="50">Direct Purchase - ₹50</option>
+    <option value="52">Door Delivery - ₹52</option>
+  </select><br>
+  <button type="submit">Save Default</button>
+</form>
 
 <h3>➕ Add / Edit Sale</h3>
-
 <form id="salesForm">
   <input type="hidden" id="editIndex">
   <input type="date" id="saleDate" required><br>
@@ -42,9 +53,11 @@
 <a href="index.html">⬅ Back to Dashboard</a>
 
 <script>
+// Load Data
 let sales = JSON.parse(localStorage.getItem("milkSales")) || [];
+let defaults = JSON.parse(localStorage.getItem("customerDefaults")) || {};
 
-// Display all sales
+// Show Sales Records
 function showSales() {
     const list = document.getElementById("salesList");
     if (sales.length === 0) { list.innerHTML = "No sales yet."; return; }
@@ -56,13 +69,34 @@ function showSales() {
     });
 }
 
-// Save to localStorage
+// Save Sales to Storage
 function saveSales() {
     localStorage.setItem("milkSales", JSON.stringify(sales));
     showSales();
 }
 
-// Add or Edit Sale
+// Save Default Quantity
+document.getElementById("defaultForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    const name = document.getElementById("defCustomer").value;
+    const qty = parseFloat(document.getElementById("defQty").value);
+    const price = parseFloat(document.getElementById("defPrice").value);
+    defaults[name] = { qty, price };
+    localStorage.setItem("customerDefaults", JSON.stringify(defaults));
+    alert("✅ Default set for " + name);
+    document.getElementById("defaultForm").reset();
+});
+
+// Auto-fill defaults when customer name entered
+document.getElementById("customer").addEventListener("input", function(){
+    const name = this.value;
+    if (defaults[name]) {
+        document.getElementById("quantity").value = defaults[name].qty;
+        document.getElementById("priceType").value = defaults[name].price;
+    }
+});
+
+// Add/Edit Sale Entry
 document.getElementById("salesForm").addEventListener("submit", function(e){
     e.preventDefault();
     const date = document.getElementById("saleDate").value;
@@ -83,7 +117,7 @@ document.getElementById("salesForm").addEventListener("submit", function(e){
     saveSales();
 });
 
-// Edit Entry
+// Edit & Delete Functions
 function editSale(i) {
     document.getElementById("saleDate").value = sales[i].date;
     document.getElementById("customer").value = sales[i].customer;
@@ -91,8 +125,6 @@ function editSale(i) {
     document.getElementById("priceType").value = sales[i].price;
     document.getElementById("editIndex").value = i;
 }
-
-// Delete Entry
 function deleteSale(i) {
     if (confirm("Delete this sale record?")) {
         sales.splice(i, 1);
