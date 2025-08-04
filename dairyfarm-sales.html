@@ -19,12 +19,13 @@
 </head>
 <body>
 
-<header>🥛 Daily Milk Sales</header>
+<header>🥛 Daily Milk Sales (with Date)</header>
 
 <h3>➕ Add / Edit Sale</h3>
 
 <form id="salesForm">
   <input type="hidden" id="editIndex">
+  <input type="date" id="saleDate" required><br>
   <input type="text" id="customer" placeholder="Customer Name" required><br>
   <input type="number" id="quantity" placeholder="Quantity (litres)" required><br>
   <label>Price Type:</label><br>
@@ -43,27 +44,28 @@
 <script>
 let sales = JSON.parse(localStorage.getItem("milkSales")) || [];
 
+// Display all sales
 function showSales() {
     const list = document.getElementById("salesList");
-    if (sales.length === 0) {
-        list.innerHTML = "No sales yet.";
-        return;
-    }
+    if (sales.length === 0) { list.innerHTML = "No sales yet."; return; }
     list.innerHTML = "";
     sales.forEach((s, i) => {
-        list.innerHTML += `<div class="entry">👤 <b>${s.customer}</b> | ${s.quantity}L × ₹${s.price} = ₹${s.total}
+        list.innerHTML += `<div class="entry">📅 ${s.date} | 👤 <b>${s.customer}</b> | ${s.quantity}L × ₹${s.price} = ₹${s.total}
         <button class="editBtn" onclick="editSale(${i})">📝 Edit</button>
         <button class="deleteBtn" onclick="deleteSale(${i})">❌ Delete</button></div>`;
     });
 }
 
+// Save to localStorage
 function saveSales() {
     localStorage.setItem("milkSales", JSON.stringify(sales));
     showSales();
 }
 
+// Add or Edit Sale
 document.getElementById("salesForm").addEventListener("submit", function(e){
     e.preventDefault();
+    const date = document.getElementById("saleDate").value;
     const customer = document.getElementById("customer").value;
     const quantity = parseFloat(document.getElementById("quantity").value);
     const price = parseFloat(document.getElementById("priceType").value);
@@ -71,9 +73,9 @@ document.getElementById("salesForm").addEventListener("submit", function(e){
     const index = document.getElementById("editIndex").value;
 
     if (index) {
-        sales[index] = { customer, quantity, price, total };
+        sales[index] = { date, customer, quantity, price, total };
     } else {
-        sales.push({ customer, quantity, price, total });
+        sales.push({ date, customer, quantity, price, total });
     }
 
     document.getElementById("editIndex").value = "";
@@ -81,13 +83,16 @@ document.getElementById("salesForm").addEventListener("submit", function(e){
     saveSales();
 });
 
+// Edit Entry
 function editSale(i) {
+    document.getElementById("saleDate").value = sales[i].date;
     document.getElementById("customer").value = sales[i].customer;
     document.getElementById("quantity").value = sales[i].quantity;
     document.getElementById("priceType").value = sales[i].price;
     document.getElementById("editIndex").value = i;
 }
 
+// Delete Entry
 function deleteSale(i) {
     if (confirm("Delete this sale record?")) {
         sales.splice(i, 1);
